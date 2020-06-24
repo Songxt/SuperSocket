@@ -35,7 +35,6 @@ namespace SuperSocket
                     services.TryAdd(ServiceDescriptor.Singleton<IPackageDecoder<StringPackageInfo>, DefaultStringPackageDecoder>());
                 }
 
-                services.TryAdd(ServiceDescriptor.Singleton<IChannelCreatorFactory, TcpChannelCreatorFactory>());
                 services.TryAdd(ServiceDescriptor.Singleton<IPackageEncoder<string>, DefaultStringEncoderForDI>());
 
                 // if no host service was defined, just use the default one
@@ -168,6 +167,17 @@ namespace SuperSocket
 
                     if (errorHandler != null)
                         services.AddSingleton<Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>>>(errorHandler);
+                }
+            );
+        }
+
+        public SuperSocketHostBuilder<TReceivePackage> UsePackageHandlingScheduler<TPackageHandlingScheduler>()
+            where TPackageHandlingScheduler : class, IPackageHandlingScheduler<TReceivePackage>
+        {
+            return this.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.AddSingleton<IPackageHandlingScheduler<TReceivePackage>, TPackageHandlingScheduler>();
                 }
             );
         }
